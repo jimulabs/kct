@@ -1,8 +1,8 @@
-#!/usr/bin/ruby
+#!/usr/local/bin/ruby
 #
 require 'scrapi'
 
-TidyFFI.library_path = '/home/lintonye/.rvm/gems/ruby-1.9.3-p194/gems/scrapi-2.0.0/lib/tidy/libtidy.so'
+TidyFFI.library_path = '/usr/local/lib/ruby/gems/1.9.1/gems/scrapi-2.0.0/lib/tidy/libtidy.so'
 
 def search(term)
   project_scr = Scraper.define do
@@ -19,6 +19,9 @@ def search(term)
 
   url = "http://www.kickstarter.com/projects/search?utf8=&term=#{term}"
   projects = kct_scr.scrape URI.parse(url)
+  projects.collect do |p|
+    Hash[p.each_pair.to_a]
+  end
 end
 
 def project(link)
@@ -26,11 +29,13 @@ def project(link)
     root = 'div[id=moneyraised]'
     process "#{root} div[id=backers_count]", :backers=>'@data-backers-count'
     process "#{root} div[id=pledged]", :pledged=>'@data-pledged'
-    result :backers, :pledged
+    process 'div[id=project-header] h1[id=name]>a', :name=>:text
+    result :backers, :pledged, :name
   end
 
   url = "http://www.kickstarter.com#{link}"
-  project_scr.scrape URI.parse(url)
+  project = project_scr.scrape URI.parse(url)
+  Hash[project.each_pair.to_a]
 end
 
 #puts search 'table'
