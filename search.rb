@@ -1,4 +1,5 @@
 #!/usr/local/bin/ruby
+WEB = true
 
 require_relative 'scrapers'
 require 'cgi'

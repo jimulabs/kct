@@ -7,8 +7,12 @@ TidyFFI.library_path = '/usr/local/lib/ruby/gems/1.9.1/gems/scrapi-2.0.0/lib/tid
 def search(term)
   project_scr = Scraper.define do
     process 'div.project-thumbnail>a>img:first-child', :thumbnail=>'@src'
-    process 'h2>a', :name=>:text, :link=>'@href'
-    result :thumbnail, :name, :link
+    process 'h2>a', :name=>:text, :link=>'@href', :id=>'@href'
+    process 'ul.project-meta>li:last-child>a', :location=>:text 
+    process 'strong.project-pledged-amount', :pledged=>:text 
+    process 'ul.project-stats>li.middle>strong', :backers=>:text 
+    process 'div.project-card>p', :description=>:text
+    result :id, :thumbnail, :name, :link, :location, :pledged, :backers, :description
   end
 
   kct_scr = Scraper.define do
@@ -38,5 +42,7 @@ def project(link)
   Hash[project.each_pair.to_a]
 end
 
-#puts search 'table'
-#puts project('/projects/gaborvida/chameleon-a-better-home-screen-for-your-android-ta?ref=search')
+if not defined?(WEB)
+  puts search 'eclipse'
+  puts project('/projects/gaborvida/chameleon-a-better-home-screen-for-your-android-ta?ref=search')
+end
